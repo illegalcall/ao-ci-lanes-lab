@@ -5,12 +5,15 @@ on:
 permissions:
   actions: write
 jobs:
-  dispatch:
+  rerun:
     if: github.event.changes.base && github.base_ref == 'main' && !github.event.pull_request.head.repo.fork && !startsWith(github.head_ref, 'noretarget/')
     runs-on: ubuntu-latest
     steps:
-      - run: gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$HEAD" -f pr="$PR"
-        env:
+      - env:
           GH_TOKEN: ${{ github.token }}
-          HEAD: ${{ github.head_ref }}
-          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          id=$(gh run list -R "$GITHUB_REPOSITORY" -w ci.yml -c "$SHA" -e pull_request -L 1 --json databaseId -q '.[0].databaseId')
+          test -n "$id"
+          gh run watch "$id" -R "$GITHUB_REPOSITORY" > /dev/null
+          gh run rerun "$id" -R "$GITHUB_REPOSITORY"
