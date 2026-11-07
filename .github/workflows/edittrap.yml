@@ -1,0 +1,17 @@
+name: Edit trap (job guard on edited)
+on:
+  pull_request:
+    branches: [t3-base]
+    types: [opened, synchronize, reopened, edited]
+concurrency:
+  group: edittrap-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  slowtest:
+    if: github.event.action != 'edited'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sleep 60
+          if [ -f FAIL_slow ]; then echo "slow test failed"; exit 1; fi

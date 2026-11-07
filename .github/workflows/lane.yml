@@ -1,0 +1,13 @@
+on:
+  workflow_call:
+    inputs:
+      name: { type: string, required: true }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          if [ -f "SLEEP_${{ inputs.name }}" ]; then sleep 120; fi
+          if [ -f "FAIL_${{ inputs.name }}" ]; then echo "forced failure in ${{ inputs.name }}"; exit 1; fi
+          echo "${{ inputs.name }} ok"

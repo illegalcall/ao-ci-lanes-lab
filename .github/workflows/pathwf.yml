@@ -1,0 +1,10 @@
+name: Path filtered (today's pattern)
+on:
+  pull_request:
+    branches: [t1-base]
+    paths: ["backend/**"]
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "backend tests"
